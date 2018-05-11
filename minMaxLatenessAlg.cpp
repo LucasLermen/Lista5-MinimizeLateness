@@ -13,6 +13,7 @@ typedef struct Jobs{
   char descricaoJob[25];
   int duracao;
   int deadline;
+  int atraso;
   struct Jobs *proximo;
 }Jobs;
 
@@ -20,6 +21,7 @@ typedef struct Jobs{
 int menu();
 void cabecalhoInsercao();
 Jobs* insereJobs(Jobs *, char *, int, int);
+void calculaAtraso(Jobs *);
 void imprimeJobs(Jobs *);
 
 int main(){
@@ -50,6 +52,7 @@ int main(){
       break;
       case 2:
         LIMPA_TELA;
+        calculaAtraso(jobs);
         printf("\n ------------- Lista de Eventos -------------\n\n");
         imprimeJobs(jobs);
       break;
@@ -122,6 +125,21 @@ Jobs* insereJobs(Jobs *jobs , char *descricaoJob, int duracao, int deadline){
   return jobs;
 }
 
+void calculaAtraso(Jobs *jobs){
+  int horarioTermino = 0;
+  int atraso = 0;
+  Jobs *aux = jobs;
+  while(aux != NULL){
+    horarioTermino += aux->duracao;
+    atraso = horarioTermino - aux->deadline;
+    if(atraso < 0){
+      aux->atraso = 0;
+    }else{
+      aux->atraso = atraso;
+    }
+    aux = aux->proximo;
+  }
+}
 
 void imprimeJobs(Jobs *jobs){
     int contadorEvento = 1;
@@ -131,7 +149,8 @@ void imprimeJobs(Jobs *jobs){
       printf("Descricao do evento: %s\n", jobs->descricaoJob);
       printf("Duracao do evento: %d\n",jobs->duracao);
       printf("Deadline do evento: %d\n",jobs->deadline);
-      printf("----------------------------------\n");
+      printf("Atraso do evento: %d\n",jobs->atraso);
+      printf("-----------------------------------\n");
       jobs = jobs->proximo;
       contadorEvento++;
     }
