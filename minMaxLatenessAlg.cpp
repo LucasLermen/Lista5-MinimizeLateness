@@ -49,6 +49,9 @@ int main(){
         scanf("%d", &deadline);
 
         jobs = insereJobs(jobs, descricaoJob, duracao, deadline);
+
+        calculaAtraso(jobs);
+        imprimeJobs(jobs);
       break;
       case 2:
         LIMPA_TELA;
