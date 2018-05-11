@@ -13,55 +13,52 @@ typedef struct Jobs{
   char descricaoJob[25];
   int duracao;
   int deadline;
-  struct Jobs *prox;
+  struct Jobs *proximo;
 }Jobs;
 
-typedef struct ListaJobs{
-  int quantidade;
-  Jobs *inicio;
-}ListaJobs;
-
 //Declaração de funções
-void recebeDescricao(char *);
-int recebeValor(char *);
-void insereJobs(Jobs *, char *, int, int);
-void imprimeJobs(Jobs *);
-void alocaJob(Jobs *);
 int menu();
+void cabecalhoInsercao();
+Jobs* insereJobs(Jobs *, char *, int, int);
+void imprimeJobs(Jobs *);
 
 int main(){
   int lateness, opcao, duracao, deadline;
-  Jobs *jobs;
+  Jobs *jobs = NULL;
   char descricaoJob[25];
-  char stringDuracao[8] = "duracao";
-  char stringDeadline[9] = "deadline";
 
   do{
     opcao = menu();
     switch (opcao) {
       case 1:
-        printf("\nEventos estão sendo escalados\n");
+        LIMPA_TELA;
+        cabecalhoInsercao();
+        printf("Digite a descricao do Evento que deseja inserir: ");
+        scanf("%s", descricaoJob);
+
+        LIMPA_TELA;
+        cabecalhoInsercao();
+        printf("Digite a duracao do Evento que deseja inserir: ");
+        scanf("%d", &duracao);
+
+        LIMPA_TELA;
+        cabecalhoInsercao();
+        printf("Digite o deadline do Evento que deseja inserir: ");
+        scanf("%d", &deadline);
+
+        jobs = insereJobs(jobs, descricaoJob, duracao, deadline);
       break;
       case 2:
-        recebeDescricao(descricaoJob);
-        duracao = recebeValor(stringDuracao);
-        deadline = recebeValor(stringDeadline);
-        insereJobs(jobs, descricaoJob, duracao, deadline);
-        // printf("%s\n", descricaoJob);
-        // printf("%d\n", duracao);
-        // printf("%d\n", deadline);
-        // printf("\nInserção de Elemento\n");
-      break;
-      case 3:
-        printf("\n ------------- Lista de Jobs -------------\n\n");
+        LIMPA_TELA;
+        printf("\n ------------- Lista de Eventos -------------\n\n");
         imprimeJobs(jobs);
       break;
       case 0:
         LIMPA_TELA;
         printf("Programa finalizado!\n");
-        exit(0);
         break;
       default:
+        LIMPA_TELA;
         printf("\nOpcao nao encontrada!!!!\n");
         break;
     }
@@ -69,66 +66,73 @@ int main(){
   return 0;
 }
 
+//=============== SUBPROGRAMAS ==============
+
 int menu(){
   int op;
   printf("\n\n----------- MINIMIZE MAXIMUM LATENESS -----------\n\n");
-  printf("1 - Escalar Eventos\n");
-  printf("2 - Inserir Evento\n");
-  printf("3 - Imprimir Lista de Eventos\n");
+  printf("1 - Inserir Evento\n");
+  printf("2 - Imprimir Lista de Eventos\n");
   printf("0 - SAIR\n\n");
+  printf("Digite a opcao desejada: ");
   scanf("%d",&op);
   return op;
 }
 
-//=============== SUBPROGRAMAS ==============
 
-void recebeDescricao(char *descricaoJob){
-   LIMPA_TELA;
-   printf("Digite a descricao do Job que deseja inserir: ");
-   scanf("%s", descricaoJob);
+void cabecalhoInsercao(){
+  printf("---------------------------------------------\n");
+  printf("|              INSERINDO EVENTO             |\n");
+  printf("---------------------------------------------\n");
 }
 
-int recebeValor(char* tipo){
+
+Jobs* insereJobs(Jobs *jobs , char *descricaoJob, int duracao, int deadline){
+  Jobs* aux = jobs;
+  Jobs* novo;
+  Jobs* anterior = NULL;
   int valor;
-  LIMPA_TELA;
-  printf("Digite o(a) %s do Job que deseja inserir: ", tipo);
-  scanf("%d", &valor);
-  return valor;
-}
 
-void insereJobs(Jobs *jobs , char *descricaoJob, int duracao, int deadline){
-    Jobs *atual, *novo, *anterior;
-    int num;
+  novo = (Jobs*)malloc(sizeof(Jobs));
+  if(novo == NULL){
+    printf("\nAlocacao falhou\n");
+    exit(1);
+  }
+  strcpy(novo->descricaoJob, descricaoJob);
+  novo->duracao = duracao;
+  novo->deadline = deadline;
 
-    novo = (Jobs *) malloc(sizeof(Jobs));
-
-    atual = jobs;
-    anterior = NULL;
-
-    memset(novo->descricaoJob, '\0', sizeof(novo->descricaoJob));
-    strcpy(novo->descricaoJob, descricaoJob);
-    novo->duracao = duracao;
-    novo->deadline = deadline;
-
-    if(atual == NULL){
-        novo->prox = NULL;
-        jobs = novo;
-    } else{
-        while(atual != NULL && atual->deadline < num){
-            anterior = atual;
-            atual = atual->prox;
-        }
-
-        novo->prox = atual;
-
-        if(anterior == NULL){
-            jobs = novo;
-        } else{
-            anterior->prox = novo;
-        }
+  if(jobs == NULL){
+    novo->proximo = NULL;
+    jobs = novo;
+  }else {
+    while(aux != NULL && aux->deadline < deadline){
+      anterior = aux;
+      aux = aux->proximo;
     }
+    novo->proximo = aux;
+
+    if (anterior == NULL) {
+      jobs = novo;
+    }else {
+      anterior->proximo = novo;
+    }
+  }
+  printf("\nElemento inserido");
+  return jobs;
 }
 
-void imprimeJobs(Jobs *reg){
-  //Imprime lista de Jobs
+
+void imprimeJobs(Jobs *jobs){
+    int contadorEvento = 1;
+    while(jobs != NULL)
+    {
+      printf("\n------------ Evento %d -------------\n", contadorEvento);
+      printf("Descricao do evento: %s\n", jobs->descricaoJob);
+      printf("Duracao do evento: %d\n",jobs->duracao);
+      printf("Deadline do evento: %d\n",jobs->deadline);
+      printf("----------------------------------\n");
+      jobs = jobs->proximo;
+      contadorEvento++;
+    }
 }
